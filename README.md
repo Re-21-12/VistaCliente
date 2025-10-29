@@ -1,8 +1,8 @@
-#Tablero de Marcador — Vista Cliente
+# Tablero de Marcador — Vista Cliente
 
 Interfaz de solo lectura para visualizar un partido en curso: periodo, posesión, puntaje, faltas, bonus, reloj de juego, reloj de tiro (24s) y contador de 8s. Sin controles de edición.
 
-#Características
+# Características
 
 Marcador en vivo: puntos de Local y Visitante.
 
@@ -28,7 +28,7 @@ Botón Regresar al Perfil en las vistas cliente.
 
 Diseño responsive y etiquetas ARIA básicas.
 
-#Requisitos
+# Requisitos
 
 Node.js 18 o superior
 
@@ -52,7 +52,7 @@ npm run build
 # Constructor
 ng build --configuration production
 
-Rutas (cliente)
+# Rutas (cliente)
 
 /seleccion — portada del marcador
 
