@@ -1,9 +1,10 @@
 <section class="panel">
   <header class="panel__header">
-    <h2 class="panel__title">Equipos</h2>
+    <div class="header-left">
+      <h2 class="panel__title">Equipos</h2>
+    </div>
   </header>
-
-  <div class="toolbar toolbar--one-row">
+  <div class="toolbar toolbar--one-row" *ngIf="!readonly()">
     <label class="label inline">Nombre</label>
     <input
       class="input"
@@ -49,7 +50,7 @@
     <button class="btn btn--ghost danger" (click)="borrarPorId()" [disabled]="!idCrud || loading()">Borrar</button>
   </div>
 
-  <div class="toolbar toolbar--one-row" style="margin-top:8px">
+  <div class="toolbar toolbar--one-row" style="margin-top:8px" *ngIf="!readonly()">
     <label class="label inline">Logo URL</label>
     <input
       class="input"
@@ -74,7 +75,6 @@
       alt="Logo (preview)"
     />
   </div>
-
   <div class="list-scroll">
     <ul class="list">
       <li class="row-item" *ngFor="let e of items(); trackBy: trackByEquipoId">
@@ -89,15 +89,15 @@
 
         <span class="name">{{ e.nombre }}</span>
         <span class="muted">Loc: {{ locOf(e) }}</span>
-
-        <button class="btn btn--ghost" (click)="borrarDesdeLista(e)">Eliminar</button>
+        <button class="btn btn--ghost" *ngIf="!readonly()" (click)="borrarDesdeLista(e)">Eliminar</button>
       </li>
     </ul>
   </div>
-
-  <div class="toolbar" style="margin: .5rem 0 0; display:flex; justify-content:flex-end;">
-    <button class="btn" (click)="generarReporteEquipos()">Generar Reporte</button>
+  <div class="panel__footer">
+  <div class="footer-left">
+    <button class="btn btn--soft" type="button" (click)="volverPerfil()">Regresar</button>
   </div>
+</div>
 
   <mat-paginator
     [length]="totalRegistros()"

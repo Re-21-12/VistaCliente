@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -10,6 +10,7 @@ import { PaisService } from '../../core/services/country.service';
 import { NotifyService } from '../shared/notify.service';
 import { Pagina, Equipo } from '../../core/interfaces/models';
 import { ReporteService } from '../../core/services/reporte.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -19,15 +20,14 @@ import { ReporteService } from '../../core/services/reporte.service';
   styleUrls: ['./jugadores-page.component.css']
 })
 export class JugadoresPageComponent implements OnInit {
-generarReporte() {
-throw new Error('Method not implemented.');
-}
+  private route   = inject(ActivatedRoute);
+  private router  = inject(Router);
 
+
+  readonly = computed(() => this.route.snapshot.data['readOnly'] === true);
   jugadores = signal<Jugador[]>([]);
   equipos   = signal<Equipo[]>([]);
   paises    = signal<{ codigo?: string; nombre: string }[]>([]);
-
-
   nombre = '';
   apellido = '';
   estatura?: number;
@@ -37,25 +37,28 @@ throw new Error('Method not implemented.');
   idEquipo?: number;
   idCrud?: number;
   errorNombre = '';
-
   loading = signal(false);
   totalRegistros = signal(0);
   tamanio = 5;
   pagina = 1;
   items = signal<Jugador[]>([]);
 
+
   private jugSvc  = inject(JugadorService);
   private eqSvc   = inject(EquipoService);
   private paisSvc = inject(PaisService);
   private notify  = inject(NotifyService);
   private reporte = inject(ReporteService);
-j: any;
 
   ngOnInit(): void {
     this.cargarEquipos();
     this.cargarJugadores();
     this.cargarPaises();
     this.cargarPagina();
+  }
+
+ volverPerfil(): void {
+    this.router.navigateByUrl('/bienvenida'); 
   }
 
   cargarEquipos() {
@@ -102,15 +105,7 @@ j: any;
       return;
     }
 
-    const payload: Jugador = {
-      nombre,
-      apellido,
-      estatura,
-      posicion,
-      nacionalidad,
-      edad,
-      id_Equipo
-    };
+    const payload: Jugador = { nombre, apellido, estatura, posicion, nacionalidad, edad, id_Equipo };
 
     this.loading.set(true);
     this.jugSvc.create(payload)
@@ -171,16 +166,7 @@ j: any;
       return;
     }
 
-    const payload: Jugador = {
-      id_Jugador: id,
-      nombre,
-      apellido,
-      estatura,
-      posicion,
-      nacionalidad,
-      edad,
-      id_Equipo
-    };
+    const payload: Jugador = { id_Jugador: id, nombre, apellido, estatura, posicion, nacionalidad, edad, id_Equipo };
 
     this.loading.set(true);
     this.jugSvc.update(payload)
@@ -292,7 +278,7 @@ j: any;
       });
   }
 
-    initials(j: Jugador): string {
+  initials(j: Jugador): string {
     const n = (j?.nombre ?? '').trim();
     const a = (j?.apellido ?? '').trim();
     const in1 = n.length > 0 ? n[0] : '?';
@@ -301,31 +287,29 @@ j: any;
   }
 
   private getJugadorId(j: any): number | null {
-  return (
-    (typeof j?.id_Jugador === 'number' && j.id_Jugador) ||
-    (typeof j?.id === 'number' && j.id) ||
-    (typeof j?.idJugador === 'number' && j.idJugador) ||
-    null
-  );
-}
-  
-  generarReporteDesdeFila(j: any) {
-  const id = this.getJugadorId(j);
-  if (!id) {
-    this.notify.error('No hay jugador seleccionado');
-    return;
+    return (
+      (typeof j?.id_Jugador === 'number' && j.id_Jugador) ||
+      (typeof j?.id === 'number' && j.id) ||
+      (typeof j?.idJugador === 'number' && j.idJugador) ||
+      null
+    );
   }
-  this.generarReporteJugador(id);
-}
 
-generarReporteJugador(id: number) {
-  if (!id) { this.notify.error('Ingresa/selecciona un jugador'); return; }
+  generarReporteDesdeFila(j: any) {
+    const id = this.getJugadorId(j);
+    if (!id) {
+      this.notify.error('No hay jugador seleccionado');
+      return;
+    }
+    this.generarReporteJugador(id);
+  }
 
-  this.notify.info('Generando reporte de estadísticas…');
-  this.reporte.descargarReporteEstadisticasJugador(id).subscribe({
-    next: () => this.notify.success('Reporte de estadísticas descargado'),
-    error: () => this.notify.error('No se pudo generar el reporte')
-  });
-}
-
+  generarReporteJugador(id: number) {
+    if (!id) { this.notify.error('Ingresa/selecciona un jugador'); return; }
+    this.notify.info('Generando reporte de estadísticas…');
+    this.reporte.descargarReporteEstadisticasJugador(id).subscribe({
+      next: () => this.notify.success('Reporte de estadísticas descargado'),
+      error: () => this.notify.error('No se pudo generar el reporte')
+    });
+  }
 }

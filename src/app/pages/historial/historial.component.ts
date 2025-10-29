@@ -1,25 +1,24 @@
 import { Component, OnInit, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';                
 import { EquipoService } from '../../core/services/equipo.service';
 import { LocalidadService } from '../../core/services/localidad.service';
 import { PartidoService } from '../../core/services/partido.service';
 import { Equipo, Localidad } from '../../core/interfaces/models';
 import { NotifyService } from '../shared/notify.service';
-import { PartidoResultado, Resultado } from '../../core/interfaces/models';
+import { PartidoResultado } from '../../core/interfaces/models';
 import { ReporteService } from '../../core/services/reporte.service';
 
-
-
-
 @Component({
+  standalone: true,                                      
   selector: 'app-historial',
   imports: [CommonModule, FormsModule],
   templateUrl: './historial.component.html',
-  styleUrl: './historial.component.css'
+  styleUrls: ['./historial.component.css']                
 })
-export class HistorialComponent {
-fechaHoraLocal = '';
+export class HistorialComponent implements OnInit {
+  fechaHoraLocal = '';
   partLocalidadId = model<number>();
 
   equipos = signal<Equipo[]>([]);
@@ -28,13 +27,18 @@ fechaHoraLocal = '';
   equipoVisitante = model<Equipo>();
   partidos = signal<PartidoResultado[]>([]);
 
-  private eqService   = inject(EquipoService);
-  private locService  = inject(LocalidadService);
-  private partService = inject(PartidoService);
-  private notify  = inject(NotifyService);
-  private reporte = inject(ReporteService);
+  private router     = inject(Router);                    
+  private eqService  = inject(EquipoService);
+  private locService = inject(LocalidadService);
+  private partService= inject(PartidoService);
+  private notify     = inject(NotifyService);
+  private reporte    = inject(ReporteService);
 
   ngOnInit() { this.cargar(); }
+
+  volverPerfil(): void {
+    this.router.navigateByUrl('/bienvenida'); 
+  }
 
   cargar() {
     this.eqService.getAll().subscribe({ next: d => this.equipos.set(d) });
@@ -59,13 +63,8 @@ fechaHoraLocal = '';
     const eqLocal = this.equipoLocal();
     const eqVisitante = this.equipoVisitante();
 
-    if (!eqLocal || !eqVisitante) {
-      this.notify.info('Selecciona ambos equipos'); return;
-    }
-
-    if (eqLocal.id_Equipo === eqVisitante.id_Equipo) {
-      this.notify.info('El equipo local y visitante no pueden ser el mismo'); return;
-    }
+    if (!eqLocal || !eqVisitante) { this.notify.info('Selecciona ambos equipos'); return; }
+    if (eqLocal.id_Equipo === eqVisitante.id_Equipo) { this.notify.info('El equipo local y visitante no pueden ser el mismo'); return; }
 
     const payload = {
       fechaHora: this.toLocalIso(this.fechaHoraLocal),

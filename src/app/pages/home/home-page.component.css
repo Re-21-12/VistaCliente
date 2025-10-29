@@ -45,14 +45,12 @@
 .btn-pill{border-radius:999px;padding:0 14px;height:36px;}
 .btn-sm{height:34px;padding:0 12px;font-weight:700;}
 .btn-wide{height:42px;padding:0 22px;border-radius:14px;}
-
-/* ===== Botón utilitario (duplicado compatible) ===== */
 .btn-primary{background:#2b78e4;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.3);transition:background .15s,transform .06s,box-shadow .15s;}
 .btn-primary:hover{background:#215fb8;box-shadow:0 12px 28px rgba(0,0,0,.36);}
 .btn-primary:active{background:#1e4f97;transform:translateY(1px);}
 .btn-lg{height:46px;padding:0 22px;border-radius:14px;}
 
-/* ===== Banner de ganador ===== */
+
 .winner-banner{
   margin:6px auto 0;
   padding:6px 12px;
@@ -65,8 +63,6 @@
   text-align:center;
 }
 
-/* ===== Posesión ===== */
-/* Contenedor: soporta .pos-box (HTML actual) y .possession (compatibilidad) */
 .pos-box,.possession{display:flex;flex-direction:column;align-items:center;gap:6px;}
 .pos-title{font-weight:900;letter-spacing:.08em;color:#d9e4ff;font-size:11px;text-transform:uppercase;text-decoration:underline;margin-bottom:2px;}
 
@@ -78,6 +74,8 @@
   background:#dfe3eb;border:1px solid #b7bfcc;border-radius:6px;overflow:hidden;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
 }
+
+
 
 /* Flechas compactas */
 .pos-btn{

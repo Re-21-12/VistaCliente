@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
-type UserInfo = {
-  nombre: string;
-  rol: { id_rol: number; nombre: string } | null;
-  permisos: Array<{ id?: number; nombre: string }>;
-} | null;
+type UserInfo = { nombre: string } | null;
 
 @Component({
   standalone: true,
@@ -20,31 +16,9 @@ export class BienvenidaPagesComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  user = signal<UserInfo>(this.auth.getCurrentUser());
+  user = signal<UserInfo>(null);
 
-  nombre   = computed(() => this.user()?.nombre ?? 'Usuario');
-  rol      = computed(() => this.user()?.rol?.nombre ?? '—');
-  permisos = computed(() => this.user()?.permisos ?? []);
-
-  private showAll = signal(false);
-
-  sortedPermisos = computed(() =>
-    [...this.permisos()].sort((a, b) => (a?.nombre ?? '').localeCompare(b?.nombre ?? ''))
-  );
-
-  permisosVisibles = computed(() => {
-    const list = this.sortedPermisos();
-    return this.showAll() ? list : list.slice(0, 12);
-  });
-
-  restantes = computed(() => Math.max(this.sortedPermisos().length - 12, 0));
-
-  togglePerms(): void {
-    if (this.restantes() <= 0) return;
-    this.showAll.update(v => !v);
-  }
-
-  viendoTodos = computed(() => this.showAll());
+  nombre = computed(() => this.user()?.nombre ?? 'Usuario');
 
   horaSaludo = computed(() => {
     const h = new Date().getHours();
@@ -58,22 +32,22 @@ export class BienvenidaPagesComponent implements OnInit {
     return (n[0]?.[0] ?? '?') + (n[1]?.[0] ?? '');
   });
 
-  puedeAdmin = computed(() =>
-    this.auth.hasAnyPermission([
-      'Localidad:Consultar',
-      'Equipo:Consultar',
-      'Partido:Consultar',
-      'Jugador:Consultar',
-    ])
-  );
-
   ngOnInit(): void {
-    if (!this.auth.isAuthenticated()) this.router.navigate(['/inicio_sesion']);
+    if (!this.auth.isAuthenticated()) {
+      this.router.navigate(['/inicio_sesion']);
+      return;
+    }
+    const current = this.auth.getCurrentUser?.();
+    this.user.set(current ? { nombre: current.nombre } : null);
+    if (!this.user()) this.router.navigate(['/inicio_sesion']);
   }
 
   ir(path: string): void {
-    this.router.navigate([path]);
+    this.router.navigateByUrl(path); // Opción B: navegación directa
   }
 
-  trackByPerm = (_: number, p: { id?: number; nombre: string }) => p?.id ?? p?.nombre ?? _;
+  cambiarCuenta(): void {
+    try { this.auth.logout?.(); } catch {}
+    this.router.navigate(['/inicio_sesion']);
+  }
 }

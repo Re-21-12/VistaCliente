@@ -1,6 +1,6 @@
+
 <header class="pro-appbar">
   <div class="pro-appbar__inner">
-    <!-- Botón del sidebar - Solo mostrar si hay navegación disponible -->
     <button
       *ngIf="shouldShowNavigation"
       class="sidebar-toggle"
@@ -14,16 +14,14 @@
 
     <a class="pro-brand" routerLink="/seleccion" aria-label="Inicio">
       <span class="pro-brand__title">Tablero</span>
-      <span class="pro-brand__section">
-        {{ getCurrentSectionName() }}
-      </span>
+      <span class="pro-brand__section">{{ getCurrentSectionName() }}</span>
     </a>
 
     <div class="pro-nav-group">
-      <!-- Botón tema -->
       <button
         class="theme-toggle"
         (click)="toggleTheme()"
+        [attr.aria-pressed]="isDarkMode()"
         [attr.aria-label]="isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
         [title]="isDarkMode() ? 'Modo claro' : 'Modo oscuro'">
         <svg *ngIf="isDarkMode()" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -35,57 +33,52 @@
       </button>
 
       <nav class="pro-nav" role="navigation" aria-label="Principal">
-        <!-- Navegación condicional basada en autenticación -->
         <ng-container *ngIf="!isAuthenticated">
-          <!-- Links para usuarios no autenticados -->
           <a
             routerLink="/seleccion"
             class="pro-chip"
             routerLinkActive="is-active"
             [routerLinkActiveOptions]="{ exact: true }"
-            [class.is-hidden]="_router.url.startsWith('/seleccion')"
-          >Marcador</a>
+            [class.is-hidden]="_router.url.startsWith('/seleccion')">
+            Marcador
+          </a>
           <a
             routerLink="/inicio_sesion"
             class="pro-chip"
             routerLinkActive="is-active"
-            [class.is-hidden]="_router.url.startsWith('/inicio_sesion')"
-          >Iniciar sesión</a>
+            [class.is-hidden]="_router.url.startsWith('/inicio_sesion')">
+            Iniciar sesión
+          </a>
           <a
             routerLink="/registro"
             class="pro-chip"
             routerLinkActive="is-active"
-            [class.is-hidden]="_router.url.startsWith('/registro')"
-          >Registrarse</a>
+            [class.is-hidden]="_router.url.startsWith('/registro')">
+            Registrarse
+          </a>
         </ng-container>
 
         <ng-container *ngIf="isAuthenticated">
-          <!-- Links para usuarios autenticados -->
           <a
             routerLink="/seleccion"
             class="pro-chip"
             routerLinkActive="is-active"
             [routerLinkActiveOptions]="{ exact: true }"
-            [class.is-hidden]="_router.url.startsWith('/seleccion')"
-          >Marcador</a>
-          <button
-            class="pro-chip"
-            (click)="logout()"
-            type="button"
-          >Cerrar sesión</button>
+            [class.is-hidden]="_router.url.startsWith('/seleccion')">
+            Marcador
+          </a>
+          <button class="pro-chip" (click)="logout()" type="button">Cerrar sesión</button>
         </ng-container>
       </nav>
     </div>
   </div>
-
-  <!-- líneas tipo cancha -->
   <div class="pro-appbar__court">
     <i></i><i></i>
   </div>
 </header>
+
 <app-global-loader></app-global-loader>
 
-<!-- Sidebar - Solo mostrar si hay navegación disponible -->
 <div class="sidebar-overlay" *ngIf="sidebarOpen()" (click)="closeSidebar()"></div>
 <aside class="sidebar" [class.is-open]="sidebarOpen()" (click)="onSidebarClick($event)" *ngIf="shouldShowNavigation">
   <div class="sidebar-header">
@@ -112,5 +105,5 @@
 </aside>
 
 <main class="pro-page">
-  <router-outlet />
+  <router-outlet></router-outlet>
 </main>

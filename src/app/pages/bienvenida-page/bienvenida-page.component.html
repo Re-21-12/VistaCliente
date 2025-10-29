@@ -1,59 +1,63 @@
 <section class="welcome">
-  <header class="hero">
-    <div class="avatar">{{ initials() }}</div>
-    <div class="hero__text">
-      <h2 class="hero__title">{{ horaSaludo() }}, {{ nombre() }}</h2>
-      <p class="hero__meta">
-        <span class="meta__item"><span class="dot"></span>Rol: <strong>{{ rol() }}</strong></span>
-        <span class="meta__sep"></span>
-        <span class="meta__item"><span class="dot"></span>Permisos: <strong>{{ permisos().length }}</strong></span>
-      </p>
-    </div>
-    <div class="hero__cta">
-      <button class="btn btn--primary" (click)="ir('/tablero')">Entrar al tablero</button>
-    </div>
-  </header>
-
-  <div class="grid">
-    <section class="card">
-      <div class="card__head">
-        <h3 class="card__title">Permisos principales</h3>
-        <span class="pill">{{ permisos().length }} totales</span>
+  <div class="container">
+    <header class="hero">
+      <div class="hero__text">
+        <p class="kicker">Panel principal</p>
+        <h2 class="hero__title">{{ horaSaludo() }}, {{ nombre() }}</h2>
+        <p class="hero__meta muted">Accede a tus secciones más usadas</p>
       </div>
+      <div class="hero__cta">
+        <button class="btn btn--primary" type="button" (click)="ir('/tablero')">
+          Entrar al tablero
+        </button>
+      </div>
+    </header>
 
-      <div class="chips" *ngIf="permisos().length; else noPerms">
-        <span class="chip" *ngFor="let p of permisosVisibles(); trackBy: trackByPerm">
-          {{ p.nombre }}
+    <div class="actions-grid">
+      <button class="tile" type="button" (click)="ir('/equipos')">
+        <span class="tile__icon icon" aria-hidden="true">
+          <span class="material-symbols-rounded">groups</span>
         </span>
+        <span class="tile__text">
+          <strong>Equipos</strong>
+          <small>Plantillas y detalles</small>
+        </span>
+      </button>
 
-        <button type="button" class="chip chip--muted chip--action" *ngIf="restantes() > 0 && !viendoTodos()" (click)="togglePerms()">
-          +{{ restantes() }} más
-        </button>
+      <button class="tile" type="button" (click)="ir('/partidos')">
+        <span class="tile__icon icon" aria-hidden="true">
+          <span class="material-symbols-rounded">calendar_month</span>
+        </span>
+        <span class="tile__text">
+          <strong>Partidos</strong>
+          <small>Calendario y próximos</small>
+        </span>
+      </button>
 
-        <button type="button" class="chip chip--muted chip--action" *ngIf="viendoTodos()" (click)="togglePerms()">
-          Ver menos
-        </button>
-      </div>
+      <button class="tile" type="button" (click)="ir('/jugadores')">
+        <span class="tile__icon icon" aria-hidden="true">
+          <span class="material-symbols-rounded">sports_handball</span>
+        </span>
+        <span class="tile__text">
+          <strong>Jugadores</strong>
+          <small>Fichas y estadísticas</small>
+        </span>
+      </button>
 
-      <ng-template #noPerms>
-        <p class="muted">No se encontraron permisos para tu cuenta.</p>
-      </ng-template>
-    </section>
+      <button class="tile" type="button" (click)="ir('/historial')">
+        <span class="tile__icon icon" aria-hidden="true">
+          <span class="material-symbols-rounded">bar_chart</span>
+        </span>
+        <span class="tile__text">
+          <strong>Ver historial</strong>
+          <small>Resultados recientes</small>
+        </span>
+      </button>
+    </div>
 
-    <section class="card">
-      <div class="card__head">
-        <h3 class="card__title">Accesos rápidos</h3>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn--ghost" (click)="ir('/historial')">Ver historial</button>
-        <button class="btn btn--ghost" (click)="ir('/recursos')">Recursos</button>
-        <button class="btn btn--ghost" *ngIf="puedeAdmin()" (click)="ir('/admin')">Administración</button>
-      </div>
-
-      <div class="card__footer">
-        <button class="btn btn--ghost" (click)="ir('/inicio_sesion')">Cambiar de cuenta</button>
-      </div>
-    </section>
+    <div class="card__footer card__footer--split" style="margin-top:12px;">
+      <span class="muted">Atajos preparados para ti</span>
+      <button class="btn btn--soft" type="button" (click)="cambiarCuenta()">Cambiar de cuenta</button>
+    </div>
   </div>
 </section>

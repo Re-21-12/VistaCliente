@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, model, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -10,6 +10,7 @@ import { NotifyService } from '../shared/notify.service';
 
 import { Equipo, Localidad, Pagina, PartidoPagina } from '../../core/interfaces/models';
 import { ReporteService } from '../../core/services/reporte.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -20,24 +21,23 @@ import { ReporteService } from '../../core/services/reporte.service';
 })
 export class PartidosPageComponent implements OnInit {
 
+  private route   = inject(ActivatedRoute);
+  private router  = inject(Router);
 
+
+  readonly = computed(() => this.route.snapshot.data['readOnly'] === true);
   fechaHoraLocal = '';
   partLocalidadId = model<number>();
   equipoLocal     = model<Equipo>();
   equipoVisitante = model<Equipo>();
-
-
-  equipos     = signal<Equipo[]>([]);
-  localidades = signal<Localidad[]>([]);
-  partidos    = signal<any[]>([]);           
-  items       = signal<PartidoPagina[]>([]); 
+  equipos        = signal<Equipo[]>([]);
+  localidades    = signal<Localidad[]>([]);
+  partidos       = signal<any[]>([]);
+  items          = signal<PartidoPagina[]>([]);
   totalRegistros = signal(0);
-
-
   tamanio = 5;
   pagina  = 1;
   expandedIndex = signal<number | null>(null);
-
 
   private eqService   = inject(EquipoService);
   private locService  = inject(LocalidadService);
@@ -57,6 +57,10 @@ export class PartidosPageComponent implements OnInit {
       next: d => this.partidos.set(d ?? []),
       error: () => this.notify.error('No se pudieron cargar partidos'),
     });
+  }
+
+  volverPerfil(): void {
+    this.router.navigateByUrl('/bienvenida'); 
   }
 
   private toLocalIso(dtLocal: string): string {
@@ -154,7 +158,6 @@ export class PartidosPageComponent implements OnInit {
     return Math.abs((da.getTime() - db.getTime()) / 60000);
   }
 
-  
   private idDirecto(p: any): number | null {
     if (!p) return null;
     return (
@@ -168,7 +171,6 @@ export class PartidosPageComponent implements OnInit {
       null
     );
   }
-
 
   private idPorCoincidencia(p: any): number | null {
     const loc  = this.normTxt(p?.local);
@@ -203,6 +205,7 @@ export class PartidosPageComponent implements OnInit {
   private resolverIdPartido(p: any): number | null {
     return this.idDirecto(p) ?? this.idPorCoincidencia(p);
   }
+
   generarReporteRosterFromRow(p: any) {
     const ejecutar = () => {
       const id = this.resolverIdPartido(p);

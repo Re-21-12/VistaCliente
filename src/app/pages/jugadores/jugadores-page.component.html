@@ -1,9 +1,16 @@
 <section class="panel">
   <header class="panel__header">
-    <h2 class="panel__title">Jugadores</h2>
+    <div class="header-left">
+      <h2 class="panel__title">Jugadores</h2>
+    </div>
+    <div class="header-actions">
+      <button class="btn" (click)="volverPerfil()">
+        Regresar
+      </button>
+    </div>
   </header>
 
-  <div class="toolbar form">
+  <div class="toolbar form" *ngIf="!readonly()">
     <div class="field">
       <label class="label">Nombre</label>
       <input class="input" [(ngModel)]="nombre" placeholder="Nombre"
@@ -90,17 +97,17 @@
             <div class="title">{{ j.nombre }} {{ j.apellido }}</div>
             <div class="subtitle">#{{ j.id_Jugador }}</div>
           </div>
-          <button class="btn btn--ghost" (click)="borrar(j)">Eliminar</button>
-          <button class="btn" (click)="generarReporteDesdeFila(j)">Estadísticas Jugador
-  </button>
         </div>
-        
+
         <div class="grid">
           <div class="cell"><span class="tag">Estatura</span><span class="val">{{ j.estatura }} m</span></div>
           <div class="cell"><span class="tag">Posición</span><span class="val">{{ j.posicion }}</span></div>
           <div class="cell"><span class="tag">Edad</span><span class="val">{{ j.edad }}</span></div>
           <div class="cell"><span class="tag">Nacionalidad</span><span class="val">{{ j.nacionalidad }}</span></div>
-          <div class="cell"><span class="tag">Equipo</span><span class="val">ID {{ j.id_Equipo }}</span></div>
+          <div class="cell">
+            <span class="tag">Equipo</span>
+            <span class="val">{{ equipoNombre(j.id_Equipo) }}</span>
+          </div>
         </div>
       </li>
     </ul>
@@ -112,5 +119,4 @@
     [pageSizeOptions]="[5, 10, 25]"
     (page)="cambiarPagina($event)">
   </mat-paginator>
-
 </section>

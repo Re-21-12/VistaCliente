@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EquipoService } from '../../core/services/equipo.service';
@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { finalize } from 'rxjs/operators';
 import { ReporteService } from '../../core/services/reporte.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -18,13 +19,19 @@ import { ReporteService } from '../../core/services/reporte.service';
   styleUrls: ['./equipos-page.component.css'],
 })
 export class EquiposPageComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  readonly = computed(() => this.route.snapshot.data['readOnly'] === true);
+
   nombre = '';
   idLocalidad?: number;
   idCrud?: number;
   errorNombre = '';
+
   equipos = signal<Equipo[]>([]);
   localidades = signal<Localidad[]>([]);
   loading = signal(false);
+
   totalRegistros = signal(0);
   tamanio = 5;
   pagina = 1;
@@ -37,6 +44,7 @@ export class EquiposPageComponent implements OnInit {
   private locSvc = inject(LocalidadService);
   private notify = inject(NotifyService);
   private reporte = inject(ReporteService);
+
   ngOnInit() {
     this.cargar();
     this.cargarLocalidades();
@@ -128,7 +136,6 @@ export class EquiposPageComponent implements OnInit {
           this.cargarPagina();
         },
         error: (err) => {
-
           console.error('PUT /Equipo error', err);
           this.notify.error('Error al actualizar equipo');
         },
@@ -226,18 +233,18 @@ export class EquiposPageComponent implements OnInit {
   }
 
   private preloadImage(url: string, timeoutMs = 6000): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();             
-    let done = false;
-    const timer = setTimeout(() => {
-      if (!done) { done = true; reject(new Error('timeout')); }
-    }, timeoutMs);
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      let done = false;
+      const timer = setTimeout(() => {
+        if (!done) { done = true; reject(new Error('timeout')); }
+      }, timeoutMs);
 
-    img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
-    img.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error('loaderror')); } };
-    img.src = url;
-  });
-}
+      img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+      img.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error('loaderror')); } };
+      img.src = url;
+    });
+  }
 
   async guardarLogo() {
     const id_Equipo = Number(this.idCrud);
@@ -250,7 +257,6 @@ export class EquiposPageComponent implements OnInit {
       this.notify.error('Esa URL es de Google Images. Abre la imagen y copia la URL directa del archivo (.png/.jpg).');
       return;
     }
-
     if (!/^https?:\/\//i.test(url)) { this.notify.error('La URL debe comenzar con http(s)://'); return; }
     if (!this.isLikelyDirectImageUrl(url)) {
       this.notify.error('La URL no parece ser un archivo de imagen directo (.png/.jpg/.webp/.svg).');
@@ -296,11 +302,14 @@ export class EquiposPageComponent implements OnInit {
 
   trackByEquipoId = (_: number, it: any) => it?.id_Equipo ?? it?.id ?? _;
 
-  generarReporteEquipos(){
+  generarReporteEquipos() {
     this.notify.info('Generando reporte de equipos...');
     this.reporte.descargarReporteEquipos().subscribe({
       next: () => this.notify.success('Reporte de equipos generado correctamente'),
       error: () => this.notify.error('Error al generar el reporte de equipos')
     });
-  } 
+  }
+  volverPerfil(): void {
+  this.router.navigateByUrl('/bienvenida');
+}
 }
