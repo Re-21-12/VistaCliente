@@ -1,226 +1,220 @@
-# FrontTablero
+Tablero de Marcador — Vista Cliente
 
+Interfaz ligera solo-lectura para visualizar un partido en curso: periodo, posesión, puntaje, faltas, bonus, reloj de juego, reloj de tiro (24s) y contador de 8s. Sin controles de edición ni acciones de mesa.
 
+Características
 
-Aplicación **Angular 17+** para administrar y visualizar un **tablero de baloncesto** conectado a un backend en .NET Core + SQL Server.
+Marcador en vivo: puntos de Local y Visitante.
 
+Periodo actual: 1/4…4/4 u OT en prórrogas.
 
+Posesión: indicador visual (no manipulable).
 
-Este proyecto es la **interfaz de usuario (frontend)** del sistema: permite crear **Localidades**,
-**Equipos** y **Partidos** desde un módulo de administración, y llevar el **marcador en tiempo real** desde el tablero principal.
+Bonus: se activa al llegar a ≥ 5 faltas por equipo.
 
+Reloj de juego: MM:SS.
 
+Reloj de tiro: cuenta atrás de 24s.
 
----
+Conteo de 8 segundos: visible mientras corre.
 
+Tema oscuro/claro con persistencia en localStorage y soporte prefers-color-scheme.
 
+AppBar con brand, toggle de tema y navegación mínima.
 
-## Características principales
+Sidebar con sección Marcador (incluye “Partidos”) y Cuenta (Perfil).
 
+Botón “Regresar al Perfil” en vistas cliente.
 
+Responsive y con etiquetas ARIA básicas.
 
--	**Marcador interactivo** con control de puntos, faltas, cronómetro y cuartos.
+Requisitos
 
--	**Módulo Admin** para registrar:
+Node.js 18+ y npm
 
--	Localidades
+Angular 17+ (standalone components)
 
--	Equipos
+Navegador moderno
 
--	Partidos programados
-
--	**Integración con backend** (ASP.NET Core + EF Core):
-
--	CRUD de Localidades, Equipos y Partidos
-
--	Registro automático de los 4 cuartos jugados
-
--	**Arquitectura Angular moderna**:
-
--	Standalone components
-
--	Services organizados
-
--	`tablero.facade.ts` como **fachada** que centraliza la lógica
- 
--	Código tipado con **interfaces en `models.ts`**
-
-
-
----
-
-
-
-## Estructura del proyecto
-
-
-
-```bash
-
-src/app/
-
-│
-
-├── core/
-
-│ ├── models.ts	# Interfaces tipadas: Partido, Equipo, Cuarto, Localidad, Itabler
-
-│ ├── services/	# Servicios Angular HttpClient para Localidad, Equipo, Partido, Cuarto
-
-│ └── tablero.facade.ts	# Fachada que coordina llamadas al backend
-
-│
-
-├── pages/
-
-│ ├── home-page.component.*  # Tablero principal (marcador en tiempo real)
-
-│ └── admin-page.component.* # CRUD de Localidades, Equipos y Partidos
-
-│
-
-├── app.component.*	# Layout con header + rutas
-
-└── app.routes.ts	# Configuración de rutas
-
-
-# 🎨 Front-Tablero - Documentación Completa
-
-## 📖 Descripción General
-**Front-Tablero** es el **frontend** desarrollado en **Angular** para el sistema de tablero deportivo.  
-Este proyecto consume la API REST del backend **Back-Tablero** y presenta una interfaz de usuario para la gestión de:
-- Autenticación y login de usuarios.
-- Administración de equipos y jugadores.
-- Creación y seguimiento de partidos.
-- Visualización del tablero en tiempo real.
-
----
-
-## 📂 Estructura del Proyecto
-
-```plaintext
-frontTablero-main/
-│── .editorconfig
-│── .gitignore
-│── angular.json
-│── package.json
-│── package-lock.json
-│── tsconfig.json
-│── tsconfig.app.json
-│── tsconfig.spec.json
-│── Dockerfile
-│── nginx-default.conf
-│── public/
-│   └── favicon.ico
-│
-├── src/
-│   ├── index.html
-│   ├── main.ts
-│   ├── styles.css
-│   │
-│   ├── app/
-│   │   ├── app.component.css
-│   │   ├── app.component.html
-│   │   ├── app.component.ts
-│   │   ├── app.component.spec.ts
-│   │   └── (módulos y componentes adicionales)
-│
-└── .vscode/   # Configuración de VSCode
-```
-
----
-
-## Requisitos Previos
-
-Antes de ejecutar el frontend asegúrate de tener instalado:
-
-- [Angular CLI](https://angular.io/cli)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (opcional para despliegue con contenedores)
-- [Git](https://git-scm.com/)
-
----
-
-## Instalación y Ejecución
-
-###  Clonar repositorio
-```bash
-git clone <url-repo>
-cd frontTablero-main
-```
-
-### Instalar dependencias
-```bash
+🚀 Instalación y ejecución
+# Instalar dependencias
 npm install
-```
 
-###  Ejecutar en modo desarrollo
-```bash
+# Desarrollo
+npm start
+# o
 ng serve -o
-```
 
-La aplicación estará disponible en:  
-[http://localhost:4200](http://localhost:4200)
-
-###  Compilar para producción
-```bash
+# Producción
+npm run build
+# o
 ng build --configuration production
-```
 
-###  Ejecutar con Docker
-```bash
-docker build -t front-tablero .
-docker run -d -p 80:80 front-tablero
-```
+🗺️ Rutas (cliente)
 
----
+/seleccion — portada del marcador
 
-##  Conexión con Backend
+/tablero — vista del partido (cliente)
 
-Este frontend consume la API expuesta por **Back-Tablero**.  
-Por defecto, las peticiones se dirigen a:
+/resultado — pantalla de resultado final
 
-```ts
-http://localhost:5000/api
-```
+/partidos — listado/cliente de partidos (opcional)
 
- Ajusta la URL en tus servicios Angular (`environment.ts` o servicios en `/src/app/`) según tu configuración de backend.
+/bienvenida — perfil (Regresar al Perfil apunta aquí)
 
----
+Las rutas de administración no se muestran en el menú cliente.
 
-##  Estructura de Angular
+Componentes clave
+AppComponent (layout)
 
-- **`app.component.*`** → Componente principal.
-- **`/services`** → Servicios para consumir la API REST.
-- **`/pages`** → Páginas principales (ej. login, equipos, jugadores, partidos).
-- **`/shared`** → Componentes compartidos (botones, layouts, etc.).
-- **`styles.css`** → Estilos globales.
+Barra superior (brand, sección actual, botón de tema).
 
----
+Sidebar con secciones:
 
-##  Scripts útiles
+Marcador: Tablero, Partidos
 
-### Ejecutar pruebas unitarias
-```bash
-ng test
-```
+Cuenta: Perfil
 
-### Ejecutar pruebas end-to-end
-```bash
-ng e2e
-```
+Persistencia de tema en localStorage('theme') = 'dark'|'light'.
 
----
+Añade dark-theme / light-theme a document.documentElement.
 
-##  Próximos pasos
+Snippet — tema (TS):
 
--  Mejorar integración con **Back-Tablero**.  
--  Añadir autenticación JWT en los servicios.  
--  Crear vistas específicas para **administrador / usuario normal**.  
--  Integrar **Docker Compose** para levantar backend y frontend juntos.  
+toggleTheme() {
+  this.isDarkMode.update(v => !v);
+  localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
+  this.applyTheme();
+}
 
----
+private applyTheme() {
+  const root = document.documentElement;
+  root.classList.remove('dark-theme', 'light-theme');
+  root.classList.add(this.isDarkMode() ? 'dark-theme' : 'light-theme');
 
-##  Autores
-Proyecto desarrollado en la **Universidad Mariano Gálvez - Ingeniería en Sistemas**  
-Equipo: *Tablero Deportivo*
+  const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+  if (meta) meta.content = this.isDarkMode() ? '#0b1224' : '#ffffff';
+}
 
+HomePageComponent (marcador cliente)
+
+Solo lectura de:
+
+scoreLocal, scoreVisit
+
+foulsLocal, foulsVisit, BONUS
+
+quarter
+
+possession (local | visit | none) — sin handlers de click
+
+timerSeconds (reloj de juego)
+
+shotClock() (24s)
+
+showBackcourt8() y backcourtSeconds() (8s)
+
+Botón “Regresar al Perfil” → /bienvenida.
+
+Snippet — botón volver (HTML):
+
+<footer class="client-footer">
+  <button class="btn" routerLink="/bienvenida" aria-label="Regresar al perfil">Regresar</button>
+</footer>
+
+Contrato de estado (consumido por cliente)
+
+Estos campos deben estar disponibles (p. ej., vía facade/servicio o router.getCurrentNavigation()?.extras.state):
+
+type ClientScoreboardState = {
+  locNombre: string;                    // nombre de la localidad/recinto
+  quarter: number;                      // 1..4, >4 => OT
+  possession: 'local' | 'visit' | 'none';
+  timerSeconds: number;                 // reloj de juego en segundos
+  shotClock: number;                    // reloj de tiro 24s
+  backcourtSeconds: number | null;      // 8s: null si no corre
+  local: { nombre: string; puntos: number; faltas: number; };
+  visit: { nombre: string; puntos: number; faltas: number; };
+};
+
+
+El cliente no muta este estado; solo lo muestra.
+
+Estilos y tema
+
+El tema se controla por clases en <html>: dark-theme / light-theme.
+
+Variables CSS (token design) cambian con el tema.
+
+El AppBar usa backdrop-filter y degradados suaves.
+
+Sidebar con secciones y resaltes (hover/active) + soporte responsive.
+
+Snippet — raíz de tema (CSS):
+
+:root,
+.dark-theme {
+  --bg: rgba(12, 15, 23, 0.94);
+  --border: #2c3654;
+  --text: #eaf0f6;
+  --muted: #a8b0c3;
+  --accent: #2b78e4;
+  --chip: #1a2133;
+}
+
+.light-theme {
+  --bg: rgba(248, 250, 252, 0.94);
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --muted: #64748b;
+  --accent: #3b82f6;
+  --chip: #f8fafc;
+}
+
+🧭 Sidebar (sección “Marcador”)
+
+Estructura mínima esperada del servicio de navegación (NavigationService) tras filtrado cliente:
+
+type NavigationItem = { label: string; route: string };
+type NavigationSection = { title: string; items: NavigationItem[] };
+
+[
+  {
+    title: 'Marcador',
+    items: [
+      { label: 'Tablero', route: '/tablero' },
+      { label: 'Partidos', route: '/partidos' }
+    ]
+  },
+  {
+    title: 'Cuenta',
+    items: [{ label: 'Perfil', route: '/bienvenida' }]
+  }
+]
+
+Accesibilidad (A11y)
+
+aria-label y aria-live="polite" en contadores.
+
+Botones con title/aria-label.
+
+Indicadores bonus/posesión con texto accesible.
+
+Contraste adecuado en ambos temas.
+
+Pruebas manuales rápidas
+
+Cambiar tema y recargar: debe persistir.
+
+Simular estado con bonus (faltas >= 5): aparece badge BONUS.
+
+possession = 'local' | 'visit' | 'none': cambia el indicador visual; no debe ser clickeable.
+
+backcourtSeconds: null oculta la cápsula; valores 8→0 la muestran.
+
+“Regresar” navega a /bienvenida.
+
+🛠️ Scripts útiles
+npm run lint
+npm run build
+npm run start
