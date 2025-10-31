@@ -15,7 +15,7 @@ export interface Environment {
 
 export const environment: Environment = {
   production: true,
-  selectedEnvironment: 'dev',
+  selectedEnvironment: 'prod',
   prod: {
     apiBaseUrl: '/api/api', // relativo al mismo dominio
   },
