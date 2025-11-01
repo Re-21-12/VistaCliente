@@ -17,7 +17,7 @@ export const environment: Environment = {
   production: true,
   selectedEnvironment: 'prod',
   prod: {
-    apiBaseUrl: 'http://api.corazondeseda.lat/api', // relativo al mismo dominio
+    apiBaseUrl: 'https://api.corazondeseda.lat/api', // relativo al mismo dominio
   },
   dev: {
     apiBaseUrl: 'http://localhost:5232/api', // para desarrollo local
