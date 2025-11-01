@@ -17,7 +17,7 @@ export const environment: Environment = {
   production: true,
   selectedEnvironment: 'prod',
   prod: {
-    apiBaseUrl: '/api/', // relativo al mismo dominio
+    apiBaseUrl: '/api', // relativo al mismo dominio
   },
   dev: {
     apiBaseUrl: 'http://localhost:5232/api', // para desarrollo local
