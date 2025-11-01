@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EquipoService } from '../../core/services/equipo.service';
@@ -9,7 +9,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { finalize } from 'rxjs/operators';
 import { ReporteService } from '../../core/services/reporte.service';
-import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -19,19 +18,13 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./equipos-page.component.css'],
 })
 export class EquiposPageComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  readonly = computed(() => this.route.snapshot.data['readOnly'] === true);
-
   nombre = '';
   idLocalidad?: number;
   idCrud?: number;
   errorNombre = '';
-
   equipos = signal<Equipo[]>([]);
   localidades = signal<Localidad[]>([]);
   loading = signal(false);
-
   totalRegistros = signal(0);
   tamanio = 5;
   pagina = 1;
@@ -44,7 +37,6 @@ export class EquiposPageComponent implements OnInit {
   private locSvc = inject(LocalidadService);
   private notify = inject(NotifyService);
   private reporte = inject(ReporteService);
-
   ngOnInit() {
     this.cargar();
     this.cargarLocalidades();
@@ -74,11 +66,18 @@ export class EquiposPageComponent implements OnInit {
   crear() {
     const nombre = this.nombre.trim();
     const id_Localidad = Number(this.idLocalidad);
-    if (!nombre) { this.notify.info('Ingresa un nombre de equipo'); return; }
-    if (!id_Localidad) { this.notify.info('Selecciona una localidad'); return; }
+    if (!nombre) {
+      this.notify.info('Ingresa un nombre de equipo');
+      return;
+    }
+    if (!id_Localidad) {
+      this.notify.info('Selecciona una localidad');
+      return;
+    }
 
     this.loading.set(true);
-    this.equipoSvc.create({ nombre, id_Localidad })
+    this.equipoSvc
+      .create({ nombre, id_Localidad })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
@@ -96,15 +95,20 @@ export class EquiposPageComponent implements OnInit {
 
   buscarPorId() {
     const id = Number(this.idCrud);
-    if (!id) { this.notify.info('Ingresa un ID'); return; }
+    if (!id) {
+      this.notify.info('Ingresa un ID');
+      return;
+    }
 
     this.loading.set(true);
-    this.equipoSvc.getById(id)
+    this.equipoSvc
+      .getById(id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (e) => {
           this.nombre = (e as any)?.nombre ?? '';
-          this.idLocalidad = (e as any)?.id_Localidad ?? (e as any)?.localidad ?? undefined;
+          this.idLocalidad =
+            (e as any)?.id_Localidad ?? (e as any)?.localidad ?? undefined;
           this.logoUrl = (e as any)?.url ?? '';
           this.imgError = false;
           this.notify.info('Equipo cargado en el formulario');
@@ -121,12 +125,22 @@ export class EquiposPageComponent implements OnInit {
     const nombre = this.nombre.trim();
     const id_Localidad = Number(this.idLocalidad);
 
-    if (!id_Equipo) { this.notify.info('Ingresa el ID a editar'); return; }
-    if (!nombre) { this.notify.info('Ingresa el nombre'); return; }
-    if (!id_Localidad) { this.notify.info('Selecciona una localidad'); return; }
+    if (!id_Equipo) {
+      this.notify.info('Ingresa el ID a editar');
+      return;
+    }
+    if (!nombre) {
+      this.notify.info('Ingresa el nombre');
+      return;
+    }
+    if (!id_Localidad) {
+      this.notify.info('Selecciona una localidad');
+      return;
+    }
 
     this.loading.set(true);
-    this.equipoSvc.update({ id_Equipo, nombre, id_Localidad })
+    this.equipoSvc
+      .update({ id_Equipo, nombre, id_Localidad })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
@@ -144,11 +158,15 @@ export class EquiposPageComponent implements OnInit {
 
   borrarPorId() {
     const id = Number(this.idCrud);
-    if (!id) { this.notify.info('Ingresa el ID a borrar'); return; }
+    if (!id) {
+      this.notify.info('Ingresa el ID a borrar');
+      return;
+    }
     if (!confirm(`¿Eliminar el equipo #${id}?`)) return;
 
     this.loading.set(true);
-    this.equipoSvc.delete(id)
+    this.equipoSvc
+      .delete(id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
@@ -171,7 +189,8 @@ export class EquiposPageComponent implements OnInit {
     if (!confirm(`¿Eliminar el equipo #${e.id_Equipo}?`)) return;
 
     this.loading.set(true);
-    this.equipoSvc.delete(e.id_Equipo)
+    this.equipoSvc
+      .delete(e.id_Equipo)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
@@ -212,7 +231,8 @@ export class EquiposPageComponent implements OnInit {
 
   cargarPagina() {
     this.loading.set(true);
-    this.equipoSvc.getPaginado(this.pagina, this.tamanio)
+    this.equipoSvc
+      .getPaginado(this.pagina, this.tamanio)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res: Pagina<Equipo>) => {
@@ -237,11 +257,26 @@ export class EquiposPageComponent implements OnInit {
       const img = new Image();
       let done = false;
       const timer = setTimeout(() => {
-        if (!done) { done = true; reject(new Error('timeout')); }
+        if (!done) {
+          done = true;
+          reject(new Error('timeout'));
+        }
       }, timeoutMs);
 
-      img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
-      img.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error('loaderror')); } };
+      img.onload = () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          resolve();
+        }
+      };
+      img.onerror = () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          reject(new Error('loaderror'));
+        }
+      };
       img.src = url;
     });
   }
@@ -250,23 +285,38 @@ export class EquiposPageComponent implements OnInit {
     const id_Equipo = Number(this.idCrud);
     const url = this.logoUrl?.trim();
 
-    if (!id_Equipo) { this.notify.info('Ingresa/Selecciona el ID del equipo'); return; }
-    if (!url) { this.notify.info('Ingresa la URL del logo'); return; }
-
-    if (/google\.[^/]+\/imgres/i.test(url)) {
-      this.notify.error('Esa URL es de Google Images. Abre la imagen y copia la URL directa del archivo (.png/.jpg).');
+    if (!id_Equipo) {
+      this.notify.info('Ingresa/Selecciona el ID del equipo');
       return;
     }
-    if (!/^https?:\/\//i.test(url)) { this.notify.error('La URL debe comenzar con http(s)://'); return; }
+    if (!url) {
+      this.notify.info('Ingresa la URL del logo');
+      return;
+    }
+
+    if (/google\.[^/]+\/imgres/i.test(url)) {
+      this.notify.error(
+        'Esa URL es de Google Images. Abre la imagen y copia la URL directa del archivo (.png/.jpg).',
+      );
+      return;
+    }
+
+    if (!/^https?:\/\//i.test(url)) {
+      this.notify.error('La URL debe comenzar con http(s)://');
+      return;
+    }
     if (!this.isLikelyDirectImageUrl(url)) {
-      this.notify.error('La URL no parece ser un archivo de imagen directo (.png/.jpg/.webp/.svg).');
+      this.notify.error(
+        'La URL no parece ser un archivo de imagen directo (.png/.jpg/.webp/.svg).',
+      );
       return;
     }
 
     this.loading.set(true);
     try {
       await this.preloadImage(url);
-      this.equipoSvc.patchUrl({ id_Equipo, url })
+      this.equipoSvc
+        .patchUrl({ id_Equipo, url })
         .pipe(finalize(() => this.loading.set(false)))
         .subscribe({
           next: () => {
@@ -278,26 +328,34 @@ export class EquiposPageComponent implements OnInit {
           error: (err) => {
             console.error('PATCH /Equipo url error', err);
             this.notify.error('No se pudo actualizar la URL del logo');
-          }
+          },
         });
     } catch {
       this.loading.set(false);
       this.imgError = true;
-      this.notify.error('No se pudo cargar la imagen desde esa URL (verifica que sea pública y directa).');
+      this.notify.error(
+        'No se pudo cargar la imagen desde esa URL (verifica que sea pública y directa).',
+      );
     }
   }
 
   onImgErr(ev: Event) {
     const img = ev.target as HTMLImageElement | null;
-    if (img) img.src = 'assets/placeholder-team.svg';
+    if (img) img.src = 'N/A';
   }
 
   logoOf(e: any): string {
-    return (e && (e as any).url) ? (e as any).url : 'assets/placeholder-team.svg';
+    return e && (e as any).url ? (e as any).url : 'N/A';
   }
 
   locOf(e: any): string | number {
-    return (e && ((e as any).localidad ?? (e as any).id_Localidad ?? (e as any).id_localidad)) ?? '';
+    return (
+      (e &&
+        ((e as any).localidad ??
+          (e as any).id_Localidad ??
+          (e as any).id_localidad)) ??
+      ''
+    );
   }
 
   trackByEquipoId = (_: number, it: any) => it?.id_Equipo ?? it?.id ?? _;
@@ -305,11 +363,9 @@ export class EquiposPageComponent implements OnInit {
   generarReporteEquipos() {
     this.notify.info('Generando reporte de equipos...');
     this.reporte.descargarReporteEquipos().subscribe({
-      next: () => this.notify.success('Reporte de equipos generado correctamente'),
-      error: () => this.notify.error('Error al generar el reporte de equipos')
+      next: () =>
+        this.notify.success('Reporte de equipos generado correctamente'),
+      error: () => this.notify.error('Error al generar el reporte de equipos'),
     });
   }
-  volverPerfil(): void {
-  this.router.navigateByUrl('/bienvenida');
-}
 }
