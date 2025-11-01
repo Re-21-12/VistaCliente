@@ -6,7 +6,10 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 
   const token = auth.getToken();
-  // console.log('Interceptando:', req.url, 'Token:', token);
+  // Si no hay token, no modificamos la petición
+  if (!token) {
+    return next(req);
+  }
 
   const Newreq = req.clone({
     setHeaders: {
