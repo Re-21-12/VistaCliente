@@ -2,7 +2,6 @@
 <header class="pro-appbar">
   <div class="pro-appbar__inner">
     <button
-      *ngIf="shouldShowNavigation"
       class="sidebar-toggle"
       (click)="toggleSidebar()"
       aria-label="Abrir menú"
@@ -42,7 +41,7 @@
             [class.is-hidden]="_router.url.startsWith('/seleccion')">
             Marcador
           </a>
-          <a
+<!--           <a
             routerLink="/inicio_sesion"
             class="pro-chip"
             routerLinkActive="is-active"
@@ -55,7 +54,7 @@
             routerLinkActive="is-active"
             [class.is-hidden]="_router.url.startsWith('/registro')">
             Registrarse
-          </a>
+          </a> -->
         </ng-container>
 
         <ng-container *ngIf="isAuthenticated">
