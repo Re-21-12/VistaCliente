@@ -29,53 +29,72 @@ export class AppComponent implements OnInit {
   }
 
   private loadNavigation() {
-    const raw = this._navigationService.getFilteredNavigation() ?? [];
+  // Si tu servicio es async, cambia esta línea por:
+  // const raw = await this._navigationService.getFilteredNavigation();
+  const raw = this._navigationService.getFilteredNavigation() ?? [];
 
-    const clientRoutes = new Set<string>([
-      '/bienvenida',
-      '/resultado',
-      '/tablero',
-      '/equipos',
-      '/partidos',
-      '/jugadores',
-      '/historial'
-    ]);
+  // Normaliza y filtra items "de cliente" (no admin)
+  const CLIENT_ROUTES = new Set<string>([
+    '/bienvenida',
+    '/resultado',
+    '/tablero',
+    '/equipos',
+    '/partidos',
+    '/jugadores',
+    '/historial',
+  ]);
+  const toRoute = (it: any): string => (it?.route ?? '');
+  const isClientItem = (item: any) => {
+    if (!item) return false;
+    if (item?.meta?.isAdmin === true || item?.meta?.admin === true) return false;
+    const r = toRoute(item);
+    if (!r || typeof r !== 'string') return false;
+    if (r.startsWith('/admin')) return false;
+    return CLIENT_ROUTES.has(r);
+  };
 
-    const toRoute = (it: any): string => (it?.route ?? '');
-    const isClientItem = (item: any) => {
-      if (!item) return false;
-      if (item?.meta?.isAdmin === true || item?.meta?.admin === true) return false;
-      const route = toRoute(item);
-      if (typeof route !== 'string') return false;
-      if (route.startsWith('/admin')) return false;
-      return clientRoutes.has(route);
-    };
+  const filtered = (raw as NavigationSection[])
+    .map(sec => ({
+      ...sec,
+      items: Array.isArray(sec?.items) ? sec.items.filter(isClientItem) : []
+    }))
+    .filter(sec => Array.isArray(sec.items) && sec.items.length > 0);
+  const perfilSection: NavigationSection = {
+    title: 'Cuenta',
+    items: [{ label: 'Inicio', route: '/bienvenida' } as any],
+  };
 
-    const filtered = (raw as NavigationSection[])
-      .map((sec) => ({
-        ...sec,
-        items: Array.isArray(sec?.items) ? sec.items.filter(isClientItem) : []
-      }))
-      .filter((sec) => Array.isArray(sec.items) && sec.items.length > 0);
-
-    const perfilSection: NavigationSection = {
-      title: 'Cuenta',
-      items: [{ label: 'Inicio', route: '/bienvenida' } as any]
-    };
-
-    const sections = [...filtered];
-    let marcador = sections.find(s => (s?.title ?? '').toLowerCase() === 'marcador');
-    if (!marcador) {
-      marcador = { title: 'Marcador', items: [] };
-      sections.unshift(marcador);
-    }
-    const hasPartidos = (marcador.items ?? []).some((it: any) => toRoute(it) === '/partidos');
-    if (!hasPartidos) {
-      marcador.items = [...(marcador.items ?? []), { label: 'Partidos', route: '/partidos' } as any];
-    }
-
-    this.navigationSections.set([perfilSection, ...sections]);
+  const sections: NavigationSection[] = [...filtered];
+  let marcador = sections.find(s => (s?.title ?? '').trim().toLowerCase() === 'marcador');
+  if (!marcador) {
+    marcador = { title: 'Marcador', items: [] };
+    sections.unshift(marcador);
+  } else {
+    marcador.items = [...(marcador.items ?? [])];
   }
+
+  const wantOrder: Array<{ label: string; route: string }> = [
+    { label: 'Equipos',   route: '/equipos'   },
+    { label: 'Partidos',  route: '/partidos'  },
+    { label: 'Jugadores', route: '/jugadores' },
+  ];
+
+  const byRoute = new Map<string, { label: string; route: string }>();
+  for (const it of marcador.items) {
+    const r = toRoute(it);
+    if (r) byRoute.set(r, { label: it.label ?? r.replace('/', ''), route: r });
+  }
+  for (const it of wantOrder) {
+    if (!byRoute.has(it.route)) byRoute.set(it.route, it);
+  }
+  marcador.items = [
+    ...wantOrder.map(it => byRoute.get(it.route)!).filter(Boolean),
+    ...[...byRoute.values()].filter(v => !wantOrder.some(w => w.route === v.route)),
+  ];
+
+  this.navigationSections.set([perfilSection, ...sections]);
+}
+
 
   private setInitialTheme() {
     const saved = localStorage.getItem('theme');
