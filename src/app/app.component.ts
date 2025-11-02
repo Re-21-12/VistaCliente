@@ -28,12 +28,10 @@ export class AppComponent implements OnInit {
     this.loadNavigation();
   }
 
-  private loadNavigation() {
-  // Si tu servicio es async, cambia esta línea por:
-  // const raw = await this._navigationService.getFilteredNavigation();
+private loadNavigation() {
+
   const raw = this._navigationService.getFilteredNavigation() ?? [];
 
-  // Normaliza y filtra items "de cliente" (no admin)
   const CLIENT_ROUTES = new Set<string>([
     '/bienvenida',
     '/resultado',
@@ -59,12 +57,13 @@ export class AppComponent implements OnInit {
       items: Array.isArray(sec?.items) ? sec.items.filter(isClientItem) : []
     }))
     .filter(sec => Array.isArray(sec.items) && sec.items.length > 0);
+
   const perfilSection: NavigationSection = {
     title: 'Cuenta',
     items: [{ label: 'Inicio', route: '/bienvenida' } as any],
   };
-
   const sections: NavigationSection[] = [...filtered];
+
   let marcador = sections.find(s => (s?.title ?? '').trim().toLowerCase() === 'marcador');
   if (!marcador) {
     marcador = { title: 'Marcador', items: [] };
@@ -87,6 +86,7 @@ export class AppComponent implements OnInit {
   for (const it of wantOrder) {
     if (!byRoute.has(it.route)) byRoute.set(it.route, it);
   }
+
   marcador.items = [
     ...wantOrder.map(it => byRoute.get(it.route)!).filter(Boolean),
     ...[...byRoute.values()].filter(v => !wantOrder.some(w => w.route === v.route)),
@@ -94,6 +94,7 @@ export class AppComponent implements OnInit {
 
   this.navigationSections.set([perfilSection, ...sections]);
 }
+
 
 
   private setInitialTheme() {
