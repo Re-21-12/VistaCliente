@@ -2,13 +2,14 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { McpChatComponent } from '../mcp-chat/mcp-chat.component';
 
 type UserInfo = { nombre: string } | null;
 
 @Component({
   standalone: true,
   selector: 'app-bienvenida-pages',
-  imports: [CommonModule],
+  imports: [CommonModule, McpChatComponent],
   templateUrl: './bienvenida-page.component.html',
   styleUrls: ['./bienvenida-page.component.css'],
 })
@@ -47,7 +48,16 @@ export class BienvenidaPagesComponent implements OnInit {
   }
 
   cambiarCuenta(): void {
-    try { this.auth.logout?.(); } catch {}
+    try {
+      this.auth.logout?.();
+    } catch {}
     this.router.navigate(['/inicio_sesion']);
+  }
+
+  // Estado para controlar el sidebar del chat
+  chatOpen = false;
+
+  toggleChat() {
+    this.chatOpen = !this.chatOpen;
   }
 }

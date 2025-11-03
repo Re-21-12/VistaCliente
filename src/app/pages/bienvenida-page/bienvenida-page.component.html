@@ -1,62 +1,84 @@
 <section class="welcome">
-  <div class="container">
-    <header class="hero">
-      <div class="hero__text">
-        <p class="kicker">Panel principal</p>
-        <h2 class="hero__title">{{ horaSaludo() }}</h2>
-        <p class="hero__meta muted">Accede a tus secciones más usadas</p>
+  <div class="welcome-layout">
+    <main class="welcome-main">
+      <div class="container">
+        <header class="hero">
+          <div class="hero__text">
+            <p class="kicker">Panel principal</p>
+            <h2 class="hero__title">{{ horaSaludo() }}</h2>
+            <p class="hero__meta muted">Accede a tus secciones más usadas</p>
+          </div>
+          <div class="hero__cta">
+            <button class="btn btn--primary" type="button" (click)="ir('/tablero')">
+              Entrar al tablero
+            </button>
+
+            <!-- Botón para mostrar/ocultar chat -->
+            <button class="btn btn--secondary chat-toggle" type="button" (click)="toggleChat()">
+              {{ chatOpen ? 'Ocultar chat' : 'Abrir chat' }}
+            </button>
+          </div>
+        </header>
+
+        <div class="actions-grid">
+          <!-- ...existing tiles... -->
+          <button class="tile" type="button" (click)="ir('/equipos')">
+            <span class="tile__icon icon" aria-hidden="true">
+              <span class="material-symbols-rounded">groups</span>
+            </span>
+            <span class="tile__text">
+              <strong>Equipos</strong>
+              <small>Plantillas y detalles</small>
+            </span>
+          </button>
+
+          <button class="tile" type="button" (click)="ir('/partidos')">
+            <span class="tile__icon icon" aria-hidden="true">
+              <span class="material-symbols-rounded">calendar_month</span>
+            </span>
+            <span class="tile__text">
+              <strong>Partidos</strong>
+              <small>Calendario y próximos</small>
+            </span>
+          </button>
+
+          <button class="tile" type="button" (click)="ir('/jugadores')">
+            <span class="tile__icon icon" aria-hidden="true">
+              <span class="material-symbols-rounded">sports_handball</span>
+            </span>
+            <span class="tile__text">
+              <strong>Jugadores</strong>
+              <small>Fichas y estadísticas</small>
+            </span>
+          </button>
+
+          <button class="tile" type="button" (click)="ir('/historial')">
+            <span class="tile__icon icon" aria-hidden="true">
+              <span class="material-symbols-rounded">bar_chart</span>
+            </span>
+            <span class="tile__text">
+              <strong>Ver historial</strong>
+              <small>Resultados recientes</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="card__footer card__footer--split" style="margin-top:12px;">
+          <span class="muted">Atajos preparados para ti</span>
+        </div>
       </div>
-      <div class="hero__cta">
-        <button class="btn btn--primary" type="button" (click)="ir('/tablero')">
-          Entrar al tablero
-        </button>
+    </main>
+
+    <!-- Sidebar lateral con el componente de chat -->
+    <aside class="chat-sidebar" [class.open]="chatOpen" *ngIf="chatOpen">
+      <header class="chat-sidebar__header">
+        <h4>Chat MCP</h4>
+        <button class="btn btn--icon" (click)="toggleChat()">✕</button>
+      </header>
+
+      <div class="chat-sidebar__body">
+        <app-mcp-chat></app-mcp-chat>
       </div>
-    </header>
-
-    <div class="actions-grid">
-      <button class="tile" type="button" (click)="ir('/equipos')">
-        <span class="tile__icon icon" aria-hidden="true">
-          <span class="material-symbols-rounded">groups</span>
-        </span>
-        <span class="tile__text">
-          <strong>Equipos</strong>
-          <small>Plantillas y detalles</small>
-        </span>
-      </button>
-
-      <button class="tile" type="button" (click)="ir('/partidos')">
-        <span class="tile__icon icon" aria-hidden="true">
-          <span class="material-symbols-rounded">calendar_month</span>
-        </span>
-        <span class="tile__text">
-          <strong>Partidos</strong>
-          <small>Calendario y próximos</small>
-        </span>
-      </button>
-
-      <button class="tile" type="button" (click)="ir('/jugadores')">
-        <span class="tile__icon icon" aria-hidden="true">
-          <span class="material-symbols-rounded">sports_handball</span>
-        </span>
-        <span class="tile__text">
-          <strong>Jugadores</strong>
-          <small>Fichas y estadísticas</small>
-        </span>
-      </button>
-
-      <button class="tile" type="button" (click)="ir('/historial')">
-        <span class="tile__icon icon" aria-hidden="true">
-          <span class="material-symbols-rounded">bar_chart</span>
-        </span>
-        <span class="tile__text">
-          <strong>Ver historial</strong>
-          <small>Resultados recientes</small>
-        </span>
-      </button>
-    </div>
-
-    <div class="card__footer card__footer--split" style="margin-top:12px;">
-      <span class="muted">Atajos preparados para ti</span>
-    </div>
+    </aside>
   </div>
 </section>
