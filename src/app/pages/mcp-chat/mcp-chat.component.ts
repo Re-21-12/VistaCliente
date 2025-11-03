@@ -5,15 +5,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-mcp-chat',
+  standalone: true,
   imports: [FormsModule, CommonModule, ReactiveFormsModule],
   templateUrl: './mcp-chat.component.html',
-  styleUrl: './mcp-chat.component.css',
+  styleUrls: ['./mcp-chat.component.css'],
 })
 export class McpChatComponent {
   private readonly http = inject(HttpClient);
   messages: { sender: 'user' | 'bot'; text: string }[] = [];
   userInput = '';
   loading = false;
+  useFetch = false; // nuevo: poner true para usar fetch hacia /llm/chat
 
   async sendMessage() {
     if (!this.userInput.trim()) return;
@@ -24,25 +26,64 @@ export class McpChatComponent {
     this.loading = true;
 
     try {
-      const body = {
-        jsonrpc: '2.0',
-        method: 'mcp.call_tool',
-        params: {
-          name: 'partidos.resultados',
-          arguments: { query: question },
-        },
-        id: Date.now(),
-      };
+      if (this.useFetch) {
+        // Petición directa al endpoint /llm/chat del MCP (no JSON-RPC /rpc)
+        const body = { prompt: question };
 
-      const res: any = await this.http
-        .post('https://mcp.corazondeseda.lat/rpc', body)
-        .toPromise();
+        const resp = await fetch('https://mcp.corazondeseda.lat/llm/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const res = await resp.json();
 
-      const reply = res?.result || 'Sin respuesta del servidor.';
-      this.messages.push({
-        sender: 'bot',
-        text: JSON.stringify(reply, null, 2),
-      });
+        // Manejar varias formas de respuesta que pueda devolver el servidor
+        const reply =
+          res?.reply ||
+          res?.result?.reply ||
+          res?.choices?.[0]?.message?.content ||
+          res?.message ||
+          JSON.stringify(res, null, 2) ||
+          'Sin respuesta del servidor.';
+        this.messages.push({
+          sender: 'bot',
+          text:
+            typeof reply === 'string' ? reply : JSON.stringify(reply, null, 2),
+        });
+      } else {
+        // Lógica existente con HttpClient (JSON-RPC hacia /rpc usando method 'mcp.chat')
+        const body = {
+          jsonrpc: '2.0',
+          // Pide al MCP que haga una consulta de chat al LLM.
+          method: 'mcp.chat',
+          params: {
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Eres un asistente. Si necesitas datos de partidos, usa las herramientas del MCP.',
+              },
+              { role: 'user', content: question },
+            ],
+          },
+          id: Date.now(),
+        };
+
+        const res: any = await this.http
+          .post('https://mcp.corazondeseda.lat/rpc', body)
+          .toPromise();
+
+        const reply =
+          res?.result?.reply ||
+          res?.result?.choices?.[0]?.message?.content ||
+          JSON.stringify(res?.result, null, 2) ||
+          'Sin respuesta del servidor.';
+        this.messages.push({
+          sender: 'bot',
+          text:
+            typeof reply === 'string' ? reply : JSON.stringify(reply, null, 2),
+        });
+      }
     } catch (err) {
       this.messages.push({
         sender: 'bot',
