@@ -179,8 +179,12 @@
   transform: translateX(0);
   opacity: 1;
   z-index: 30;
+  border-radius: 8px 0 0 8px;
+  overflow: hidden;
+  min-width: 300px;
 }
 
+/* header */
 .chat-sidebar__header {
   display: flex;
   justify-content: space-between;
@@ -188,16 +192,96 @@
   padding: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
+.chat-sidebar__header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--txt, #0b1220);
+}
+.btn--icon {
+  background: transparent;
+  border: none;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+.btn--icon:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
 
+/* body -> area de mensajes */
 .chat-sidebar__body {
   padding: 12px;
   overflow: auto;
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(250, 250, 252, 0.6),
+    rgba(245, 247, 250, 0.95)
+  );
 }
 
-/* Botón de toggling en header */
-.chat-toggle {
-  margin-left: 8px;
+/* barra inferior con input */
+.chat-sidebar__footer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.6),
+    rgba(250, 250, 252, 0.95)
+  );
+}
+.chat-input {
+  flex: 1;
+  background: #f4f6f8;
+  border: 1px solid #e6e9ee;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  color: #0b1220;
+  height: 40px;
+  box-sizing: border-box;
+}
+.chat-send-btn {
+  height: 40px;
+  min-width: 88px;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* pequenos ajustes para mensajes (si el componente usa clases así) */
+.mcp-message {
+  max-width: 78%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(10, 10, 10, 0.03);
+}
+.mcp-message--me {
+  margin-left: auto;
+  background: #e6f0ff;
+  border-color: rgba(37, 99, 235, 0.16);
+}
+
+/* scrollbars más discretos */
+.chat-sidebar__body::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-sidebar__body::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.14);
+  border-radius: 8px;
+}
+.chat-sidebar__body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(51, 65, 85, 0.14) transparent;
 }
 
 /* Responsive: en pantallas pequeñas el sidebar se superpone */
@@ -215,4 +299,7 @@
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
+  .chat-sidebar__body {
+    padding-bottom: 80px;
+  } /* espacio para la barra inferior */
 }
