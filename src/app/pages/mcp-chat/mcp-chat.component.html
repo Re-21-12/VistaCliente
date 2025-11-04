@@ -4,7 +4,7 @@
       *ngFor="let msg of messages"
       [ngClass]="{ 'user-msg': msg.sender === 'user', 'bot-msg': msg.sender === 'bot' }"
     >
-      <pre>{{ msg.text }}</pre>
+      <div class="message-content" [innerHTML]="formatMessage(msg.text)"></div>
     </div>
   </div>
 
