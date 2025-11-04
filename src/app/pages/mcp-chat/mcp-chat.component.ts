@@ -23,18 +23,78 @@ export class McpChatComponent {
   formatMessage(text: string): SafeHtml {
     if (!text) return '';
 
-    // Si el backend devuelve secuencias literales "\n" convertirlas a saltos reales
+    // Normalizar secuencias literales "\\n" a saltos reales y quitar espacios finales
     let t = text.replace(/\\n/g, '\n');
-    // Quitar espacios/saltos finales
     t = t.replace(/\s+$/, '');
 
-    // Escapar HTML para evitar XSS, luego convertir saltos a <br>
+    // Escapar HTML para evitar XSS
     const escDiv = document.createElement('div');
     escDiv.appendChild(document.createTextNode(t));
     let escaped = escDiv.innerHTML;
-    escaped = escaped.replace(/\n/g, '<br>');
 
-    return this.sanitizer.bypassSecurityTrustHtml(escaped);
+    // Extraer bloques de código (```code```) y sustituir por tokens temporales
+    const preBlocks: string[] = [];
+    escaped = escaped.replace(/```([\s\S]*?)```/g, (_m, code) => {
+      const token = `__PREBLOCK_${preBlocks.length}__`;
+      // code ya está escapado; lo colocamos dentro de <pre><code>
+      preBlocks.push(`<pre class="code-block"><code>${code}</code></pre>`);
+      return token;
+    });
+
+    // Inline code `code`
+    escaped = escaped.replace(
+      /`([^`]+)`/g,
+      '<code class="inline-code">$1</code>',
+    );
+
+    // Links: [text](https://...)
+    escaped = escaped.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    );
+
+    // Bold **text** then italic *text*
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // List handling: líneas que comienzan con - o * -> <ul><li>..</li></ul>
+    const lines = escaped.split('\n');
+    const out: string[] = [];
+    let inUl = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const m = line.match(/^\s*[-*]\s+(.*)$/);
+      if (m) {
+        if (!inUl) {
+          out.push('<ul>');
+          inUl = true;
+        }
+        out.push(`<li>${m[1]}</li>`);
+      } else {
+        if (inUl) {
+          out.push('</ul>');
+          inUl = false;
+        }
+        // preservar líneas vacías (se convertirán a <br> más adelante)
+        out.push(line);
+      }
+    }
+    if (inUl) out.push('</ul>');
+
+    // Reconstruir y convertir saltos a <br>, teniendo en cuenta que ya hay HTML de listas
+    let processed = out.join('\n');
+
+    // Restaurar bloques de código reemplazando los tokens por el HTML correspondiente
+    preBlocks.forEach((html, idx) => {
+      const token = `__PREBLOCK_${idx}__`;
+      processed = processed.replace(token, html);
+    });
+
+    // Finalmente convertir saltos de línea no dentro de etiquetas block a <br>
+    // Simplificación: reemplazamos todos los \n por <br>, los bloques <pre> contienen sus propios saltos y no se ven afectados
+    processed = processed.replace(/\n/g, '<br>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(processed);
   }
 
   async sendMessage() {
