@@ -5,6 +5,7 @@
   </div>
 
   <div class="page-header__right">
+    <div class="update-indicator" *ngIf="updateFlash()" aria-live="polite">Actualizado</div>
     <button class="btn fab-back" type="button" (click)="volverPerfil()">Regresar</button>
   </div>
 </header>
