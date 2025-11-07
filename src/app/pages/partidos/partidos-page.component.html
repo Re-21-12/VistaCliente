@@ -1,17 +1,9 @@
 <section class="panel">
   <header class="panel__header">
-    <div class="header-left">
-      <h2 class="panel__title">Partidos</h2>
-      <span class="muted" *ngIf="readonly()">Vista de solo lectura</span>
-    </div>
-    <div class="header-actions">
-      <button class="btn" (click)="volverPerfil()">
-        Regresar
-      </button>
-    </div>
+    <h2 class="panel__title">Partidos</h2>
   </header>
 
-  <div class="toolbar toolbar--wrap" *ngIf="!readonly()">
+  <div class="toolbar toolbar--wrap">
     <div class="field">
       <label class="label">Fecha y hora</label>
       <input class="input" type="datetime-local" [(ngModel)]="fechaHoraLocal" />
@@ -50,10 +42,12 @@
       </button>
     </div>
   </div>
+
   <small class="form-hint error"
-         *ngIf="!readonly() && equipoLocal() && equipoVisitante() && equipoLocal()?.id_Equipo === equipoVisitante()?.id_Equipo">
+         *ngIf="equipoLocal() && equipoVisitante() && equipoLocal()?.id_Equipo === equipoVisitante()?.id_Equipo">
     El equipo local y visitante no pueden ser el mismo.
   </small>
+
   <div class="list-scroll">
     <ul class="list match-list">
       <li class="row-item match-card"
@@ -65,22 +59,30 @@
 
         <div class="match-body">
           <div class="team">
-            <img class="crest-img" [src]="logoEquipo(p.local)" (error)="onImgErr($event)" alt="logo local" />
+            <ng-container *ngIf="logoEquipo(p.local) as logo; else noLogoLocal">
+              <img class="crest-img" [src]="logo" (error)="onImgErr($event)" alt="logo local" />
+            </ng-container>
+            <ng-template #noLogoLocal>N/A</ng-template>
             <span class="team-name">{{ p.local }}</span>
           </div>
 
           <div class="vs">VS</div>
 
           <div class="team">
-            <img class="crest-img crest--away" [src]="logoEquipo(p.visitante)" (error)="onImgErr($event)" alt="logo visitante" />
+            <ng-container *ngIf="logoEquipo(p.visitante) as logo; else noLogoVisitante">
+              <img class="crest-img crest--away" [src]="logo" (error)="onImgErr($event)" alt="logo visitante" />
+            </ng-container>
+            <ng-template #noLogoVisitante>N/A</ng-template>
             <span class="team-name">{{ p.visitante }}</span>
           </div>
         </div>
 
         <div class="match-actions">
-          <button class="btn btn--ghost" (click)="toggleDetallesByIndex(i)">Detalles</button>
-        </div>
 
+          <button class="btn btn--ghost" (click)="showMatch(i)">Ver</button>
+          <button class="btn btn--ghost" (click)="toggleDetallesByIndex(i)">Detalles</button>
+          <button class="btn" (click)="generarReporteRosterFromRow(p)">Generar Roster</button>
+        </div>
         <div class="match-details" *ngIf="expandedIndex() === i">
           <div class="detail-row"><span class="dt">Fecha/Hora:</span><span class="dd">{{ p.fechaHora }}</span></div>
           <div class="detail-row"><span class="dt">Localidad:</span><span class="dd">{{ nombreLocalidad(p.id_Localidad) }}</span></div>
@@ -96,4 +98,6 @@
     [pageSizeOptions]="[5, 10, 25]"
     (page)="cambiarPagina($event)">
   </mat-paginator>
+
 </section>
+

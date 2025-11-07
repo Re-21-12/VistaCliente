@@ -44,6 +44,14 @@ export const routes: Routes = [
       ),
     title: 'Marcador',
   },
+  {
+    path: 'tablero/:id',
+    loadComponent: () =>
+      import('./pages/home/home-page.component').then(
+        (m) => m.HomePageComponent,
+      ),
+    title: 'Marcador',
+  },
 
   // ======= Rutas públicas de solo lectura (vista usuario) =======
   {
