@@ -34,7 +34,7 @@ export const routes: Routes = [
       import('./pages/register/register.component').then(m => m.RegisterComponent),
     title: 'Registro',
   }, */
-
+  //s
   // Tablero / Home (si lo usas como landing privado)
   {
     path: 'tablero',
