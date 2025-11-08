@@ -66,7 +66,7 @@ export class PartidosPageComponent implements OnInit {
   }
   verPartido(id: number) {
     this.router.navigate(['/tablero', id]);
-  }
+  }p
   private toLocalIso(dtLocal: string): string {
     const d = new Date(dtLocal);
     const pad = (n: number) => String(n).padStart(2, '0');
